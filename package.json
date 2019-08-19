@@ -1,0 +1,22 @@
+{
+  "name": "create-zignis-plugin",
+  "version": "0.0.2",
+  "main": "index.js",
+  "license": "MIT",
+  "peerDependencies": {
+    "zignis": "^1.6.36"
+  },
+  "devDependencies": {
+    "eslint": "^6.2.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.0"
+  },
+  "dependencies": {
+    "kcors": "^2.2.2",
+    "koa": "^2.8.1",
+    "koa-bodyparser": "^4.2.1",
+    "koa-static": "^5.0.0"
+  }
+}
