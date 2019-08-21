@@ -1,5 +1,7 @@
 {
   "commandDir": "src/commands",
   "extendDir": "src/extends",
-  "hookDir": "src/hooks"
+  "hookDir": "src/hooks",
+  "publicDir": "test/public",
+  "routeDir": "test/routes"
 }
