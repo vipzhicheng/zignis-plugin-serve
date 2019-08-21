@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "peerDependencies": {
-    "zignis": "^1.6.36"
+    "zignis": "^1.6.38",
+    "zignis-plugin-zhike": "^1.8.14"
   },
   "devDependencies": {
     "eslint": "^6.2.0",
