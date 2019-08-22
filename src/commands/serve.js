@@ -1,9 +1,9 @@
 /**
  * TODO:
  * [*]: http access log
- * []: middleware support
+ * []: use custom middleware
  * [*]: disable internal middleware
- * []: validation support
+ * [*]: validation support
  * []: interception support
  */
 const { Utils } = require('zignis')
@@ -15,11 +15,14 @@ const app = new Koa()
 const logger = require('koa-logger')
 const cors = require('kcors')
 const bodyParser = require('koa-bodyparser')
+
 const serve = require('koa-static')
 const Router = require('koa-router')
 const router = new Router()
 
-const travelRouter = (routes, prefixPath = '') => {
+const { validate } = require('indicative/validator')
+
+const travelRouter = (argv, routes, prefixPath = '') => {
   Object.keys(routes).forEach(name => {
     const route = routes[name]
     let routePath = `${prefixPath}/${name}`
@@ -29,9 +32,21 @@ const travelRouter = (routes, prefixPath = '') => {
         routePath = `${routePath}/${route.path}`
       }
       const method = route.method ? Utils._.lowerCase(route.method) : 'get'
-      router[method](routePath, route.handler)
+      router[method](routePath, async (ctx) => {
+        const input = method === 'get' ? Object.assign({}, ctx.params, ctx.query) : Object.assign({}, ctx.params, ctx.query, ctx.body)
+
+        if (route.validate) {
+          try {
+            // https://indicative.adonisjs.com/validations/master/min
+            await validate(input, route.validate, route.validate_messages)
+          } catch (e) {
+            throw new Error(e)
+          }
+        }
+        await route.handler(ctx)
+      })
     } else if (Utils._.isObject(route)) {
-      travelRouter(route, routePath)
+      travelRouter(argv, route, routePath)
     } else {
       // Do nothing
     }
@@ -60,7 +75,7 @@ exports.handler = async function (argv) {
 
   const publicDir = path.resolve(argv.publicDir || '.')
   const routes = argv.routeDir ? requireDirectory(module, path.resolve(appConfig.applicationDir, argv.routeDir)) : null
-  travelRouter(routes)
+  travelRouter(argv, routes)
   // console.log(router.routes())
 
   argv.disableInternalMiddlewareKoaLogger || app.use(logger())

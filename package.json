@@ -15,6 +15,7 @@
     "eslint-plugin-standard": "^4.0.0"
   },
   "dependencies": {
+    "indicative": "^7.2.0",
     "kcors": "^2.2.2",
     "koa": "^2.8.1",
     "koa-bodyparser": "^4.2.1",
