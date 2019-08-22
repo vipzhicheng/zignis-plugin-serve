@@ -1,7 +1,8 @@
 /**
  * TODO:
- * []: http access log
+ * [*]: http access log
  * []: middleware support
+ * [*]: disable internal middleware
  * []: validation support
  * []: interception support
  */
@@ -11,6 +12,7 @@ const requireDirectory = require('require-directory')
 const Koa = require('koa')
 const app = new Koa()
 
+const logger = require('koa-logger')
 const cors = require('kcors')
 const bodyParser = require('koa-bodyparser')
 const serve = require('koa-static')
@@ -41,8 +43,10 @@ exports.desc = 'simple server'
 
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
-  yargs.option('api-prefix', { default: '/api', describe: 'prefix all routes'})
-  // yargs.commandDir('serve')
+  yargs.option('router-api-prefix', { default: '/api', describe: 'prefix all routes'})
+  yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
+  yargs.option('disable-internal-middleware-koa-bodyparser', { describe: 'disable internal middleware koa-bodyparser'})
+  yargs.option('disable-internal-middleware-koa-kcors', { describe: 'disable internal middleware kcors'})
 }
 
 exports.handler = async function (argv) {
@@ -50,8 +54,8 @@ exports.handler = async function (argv) {
   const appConfig = Utils.getApplicationConfig()
   // console.log(appConfig)
   
-  if (argv.apiPrefix) {
-    router.prefix(argv.apiPrefix)
+  if (argv.routerApiPrefix) {
+    router.prefix(argv.routerApiPrefix)
   }
 
   const publicDir = path.resolve(argv.publicDir || '.')
@@ -59,8 +63,10 @@ exports.handler = async function (argv) {
   travelRouter(routes)
   // console.log(router.routes())
 
-  app.use(cors({ credentials: true }))
-  app.use(bodyParser())
+  argv.disableInternalMiddlewareKoaLogger || app.use(logger())
+  argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
+  argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
+
   app.use(serve(publicDir))
   app.use(router.routes())
 
