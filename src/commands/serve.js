@@ -1,13 +1,20 @@
 /**
  * TODO:
+ * []: return format, base on Zhike api style, with errors by middleware
+ * []: README.md
+ * []: zignis make route a/b/c/d 'desc'
+ * []: zignis serve -l list all routes
  * [*]: http access log
- * []: use custom middleware
+ * [*]: support init script
+ * [*]: support router middleware
  * [*]: disable internal middleware
  * [*]: validation support
- * []: interception support
+ * []: watch mode
+ * []: view & template
  */
 const { Utils } = require('zignis')
 const path = require('path')
+const fs = require('fs')
 const requireDirectory = require('require-directory')
 const Koa = require('koa')
 const app = new Koa()
@@ -32,19 +39,28 @@ const travelRouter = (argv, routes, prefixPath = '') => {
         routePath = `${routePath}/${route.path}`
       }
       const method = route.method ? Utils._.lowerCase(route.method) : 'get'
-      router[method](routePath, async (ctx) => {
-        const input = method === 'get' ? Object.assign({}, ctx.params, ctx.query) : Object.assign({}, ctx.params, ctx.query, ctx.body)
 
-        if (route.validate) {
-          try {
-            // https://indicative.adonisjs.com/validations/master/min
-            await validate(input, route.validate, route.validate_messages)
-          } catch (e) {
-            throw new Error(e)
+      let middlewares = route.middleware ? Utils._.castArray(route.middleware) : []
+      if (route.handler) {
+        middlewares.push(async (ctx) => {
+          const input = method === 'get' ? Object.assign({}, ctx.params, ctx.query) : Object.assign({}, ctx.params, ctx.query, ctx.body)
+  
+          if (route.validate) {
+            try {
+              // https://indicative.adonisjs.com/validations/master/min
+              await validate(input, route.validate, route.validate_messages, {
+                cacheKey: ctx.url
+              })
+            } catch (e) {
+              ctx.body = e
+              return
+            }
           }
-        }
-        await route.handler(ctx)
-      })
+          ctx.body = await route.handler(ctx)
+        })
+      }
+
+      router[method](routePath, ...middlewares)
     } else if (Utils._.isObject(route)) {
       travelRouter(argv, route, routePath)
     } else {
@@ -58,6 +74,7 @@ exports.desc = 'simple server'
 
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
+  yargs.option('init-app', { default: false, describe: 'preprocess koa by application', alias: 'init' })
   yargs.option('router-api-prefix', { default: '/api', describe: 'prefix all routes'})
   yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
   yargs.option('disable-internal-middleware-koa-bodyparser', { describe: 'disable internal middleware koa-bodyparser'})
@@ -67,22 +84,24 @@ exports.builder = function (yargs) {
 exports.handler = async function (argv) {
   const port = argv.port || 3000
   const appConfig = Utils.getApplicationConfig()
-  // console.log(appConfig)
   
   if (argv.routerApiPrefix) {
     router.prefix(argv.routerApiPrefix)
   }
 
-  const publicDir = path.resolve(argv.publicDir || '.')
+  const publicDir = argv.publicDir ? path.resolve(argv.publicDir) : null
   const routes = argv.routeDir ? requireDirectory(module, path.resolve(appConfig.applicationDir, argv.routeDir)) : null
   travelRouter(argv, routes)
-  // console.log(router.routes())
+
+  if (argv.initApp && fs.existsSync(path.resolve(appConfig.applicationDir, argv.initApp))) {
+    require(path.resolve(appConfig.applicationDir, argv.initApp))(app)
+  }
 
   argv.disableInternalMiddlewareKoaLogger || app.use(logger())
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
 
-  app.use(serve(publicDir))
+  publicDir && app.use(serve(publicDir))
   app.use(router.routes())
 
   app.listen(port)

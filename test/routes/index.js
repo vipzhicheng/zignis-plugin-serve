@@ -1,3 +1,3 @@
 exports.handler = async (ctx) => {
-  ctx.body = 'hello 2222'
+  return 'hello 2222'
 }
