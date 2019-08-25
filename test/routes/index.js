@@ -1,3 +1,4 @@
 exports.handler = async (ctx) => {
-  return 'hello 2222'
+  ctx.json = false
+  return 'hello 5555'
 }
