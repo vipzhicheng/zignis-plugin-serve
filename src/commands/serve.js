@@ -4,9 +4,9 @@
  * [*]: support pure response, ctx.json = false
  * [*]: restructure middlewares
  * []: port detect
- * []: README.md
- * []: zignis make route a/b/c/d 'desc'
  * []: zignis serve -l list all routes
+ * []: zignis make route a/b/c/d 'desc'
+ * []: README.md
  * [*]: http access log
  * [*]: support init script
  * [*]: support router middleware
@@ -59,7 +59,7 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
   argv.disableInternalMiddlewareKoaStatic || app.use(staticMiddleware(argv))
-  
+
   app.use(routeMiddleware(argv))
 
   app.listen(port)
