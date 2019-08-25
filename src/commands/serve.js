@@ -41,6 +41,7 @@ exports.builder = function (yargs) {
   yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
   yargs.option('disable-internal-middleware-koa-bodyparser', { describe: 'disable internal middleware koa-bodyparser'})
   yargs.option('disable-internal-middleware-koa-kcors', { describe: 'disable internal middleware kcors'})
+  yargs.option('disable-internal-middleware-koa-static', { describe: 'disable internal middleware koa-static'})
 }
 
 exports.handler = async function (argv) {
@@ -57,8 +58,8 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKoaLogger || app.use(logger())
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
-
-  app.use(staticMiddleware(argv))
+  argv.disableInternalMiddlewareKoaStatic || app.use(staticMiddleware(argv))
+  
   app.use(routeMiddleware(argv))
 
   app.listen(port)
