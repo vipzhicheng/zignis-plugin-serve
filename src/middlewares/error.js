@@ -14,8 +14,13 @@ module.exports = async (ctx, next) => {
       let status
       let errCode = code || 1 // 默认 code = 1
       if (msg || ctx.errors[errCode]) {
-        errMsg = msg || ctx.errors[errCode].msg || ''
-        status = ctx.errors[errCode].status || 200
+        if (Utils._.isString(ctx.errors[errCode]))  {
+          errMsg = msg || ctx.errors[errCode] || ''
+          status = 200
+        } else {
+          errMsg = msg || ctx.errors[errCode].msg || ''
+          status = ctx.errors[errCode].status || 200
+        }
       } else {
         errMsg = '未定义错误'
         status = 500

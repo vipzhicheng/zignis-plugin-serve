@@ -2,6 +2,7 @@ exports.validate = {
   username: 'required|min:4'
 }
 
+exports.name = 'test'
 // exports.middleware = []
 
 exports.path = ':c'

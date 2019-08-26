@@ -6,7 +6,7 @@
  * [*]: port detect
  * [*]: simple route, function module as handler
  * [*]: speical route, index
- * []: zignis serve -l list all routes
+ * [*]: zignis serve -l list all routes
  * []: zignis make route a/b/c/d 'desc'
  * []: README.md
  * []: Rewrite all not-found requests to `index.html`
@@ -16,8 +16,9 @@
  * [*]: disable internal middleware
  * [*]: validation support
  * [*]: watch mode, nodemon --exec 'zignis serve'
- * []: view & template
- * []: support sentry
+ * [-]: view & template
+ * [-]: support sentry
+ * []: debug
  * []: directory file list
  */
 const { Utils } = require('zignis')
@@ -42,6 +43,7 @@ exports.desc = 'simple server'
 
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
+  yargs.option('list', { describe: 'list routes', alias: 'l' })
   yargs.option('preprocess-koa', { default: false, describe: 'preprocess koa by application' })
   yargs.option('router-api-prefix', { default: '/api', describe: 'prefix all routes'})
   yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
