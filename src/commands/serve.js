@@ -3,7 +3,7 @@
  * [*]: return format, base on Zhike api style, with errors by middleware ***
  * [*]: support pure response, ctx.json = false
  * [*]: restructure middlewares
- * []: port detect
+ * [*]: port detect
  * []: zignis serve -l list all routes
  * []: zignis make route a/b/c/d 'desc'
  * []: README.md
@@ -19,6 +19,8 @@
 const { Utils } = require('zignis')
 const path = require('path')
 const fs = require('fs')
+
+const detect = require('detect-port');
 
 const Koa = require('koa')
 const app = new Koa()
@@ -62,6 +64,14 @@ exports.handler = async function (argv) {
 
   app.use(routeMiddleware(argv))
 
-  app.listen(port)
-  console.log(`Running on http://127.0.0.1:${port}`)
+  const _port = await detect(port)
+
+  if (port == _port) {
+    app.listen(port)
+    console.log(`Running on http://127.0.0.1:${port}`);
+  } else {
+    app.listen(_port)
+    console.log(`Port ${port} was occupied, use ${_port} instead`);
+    console.log(`Running on http://127.0.0.1:${_port}`);
+  }
 }
