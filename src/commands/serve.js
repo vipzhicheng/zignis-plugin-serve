@@ -4,6 +4,7 @@
  * [*]: support pure response, ctx.json = false
  * [*]: restructure middlewares
  * [*]: port detect
+ * []: simple route, function module as handler
  * []: zignis serve -l list all routes
  * []: zignis make route a/b/c/d 'desc'
  * []: README.md
