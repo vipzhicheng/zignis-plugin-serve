@@ -8,8 +8,12 @@ const router = new Router()
 
 const travelRouter = (argv, routes, prefixPath = '') => {
   Object.keys(routes).forEach(name => {
-    const route = routes[name]
-    let routePath = `${prefixPath}/${name}`
+    let route = routes[name]
+    let routePath = name === 'index' ? `${prefixPath ? prefixPath : '/'}` : `${prefixPath}/${name}`
+
+    if (Utils._.isFunction(route)) {
+      route = { handler: route } // simple route
+    }
 
     if (route.handler && Utils._.isFunction(route.handler)) {
       if (route.path) {
@@ -36,6 +40,7 @@ const travelRouter = (argv, routes, prefixPath = '') => {
             reqId: ctx.reqId,
             code: 0
           }
+
           const handled = await route.handler(ctx)
           if (ctx.json) {
             ctx.body.data = handled
