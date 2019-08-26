@@ -5,6 +5,7 @@
  * [*]: restructure middlewares
  * [*]: port detect
  * []: simple route, function module as handler
+ * []: Rewrite all not-found requests to `index.html`
  * []: zignis serve -l list all routes
  * []: zignis make route a/b/c/d 'desc'
  * []: README.md
@@ -16,6 +17,7 @@
  * [*]: watch mode, nodemon --exec 'zignis serve'
  * []: view & template
  * []: support sentry
+ * []: directory file list
  */
 const { Utils } = require('zignis')
 const path = require('path')
@@ -51,6 +53,7 @@ exports.handler = async function (argv) {
   const port = argv.port || 3000
   const appConfig = Utils.getApplicationConfig()
 
+  // 错误处理
   app.use(errorMiddleware)
   
   // 允许应用插入一些中间件
@@ -61,9 +64,9 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKoaLogger || app.use(logger())
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
-  argv.disableInternalMiddlewareKoaStatic || app.use(staticMiddleware(argv))
+  argv.disableInternalMiddlewareKoaStatic || app.use(staticMiddleware(argv)) // 静态资源
 
-  app.use(routeMiddleware(argv))
+  app.use(routeMiddleware(argv)) // 路由资源
 
   const _port = await detect(port)
 

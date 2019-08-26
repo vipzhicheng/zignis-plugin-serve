@@ -32,6 +32,10 @@ const travelRouter = (argv, routes, prefixPath = '') => {
               throw new ctx.Exception(2, '', e)
             }
           }
+          ctx.body = {
+            reqId: ctx.reqId,
+            code: 0
+          }
           const handled = await route.handler(ctx)
           if (ctx.json) {
             ctx.body.data = handled

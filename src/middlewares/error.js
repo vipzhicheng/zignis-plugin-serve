@@ -35,10 +35,6 @@ module.exports = async (ctx, next) => {
   try {
     let startTime = new Date()
     ctx.reqId = Utils.day(startTime).format('YYYYMMDD_HHmm_ssSSS') + '_' + Utils._.padStart(Utils._.random(0, 0xffffffff).toString(16), 8, 0)
-    ctx.body = {
-      reqId: ctx.reqId,
-      code: 0
-    }
     await next()
   } catch (e) {
     console.error(e)
