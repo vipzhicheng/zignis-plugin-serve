@@ -39,7 +39,7 @@ const cors = require('kcors')
 const bodyParser = require('koa-bodyparser')
 
 exports.command = 'serve [publicDir]'
-exports.desc = 'simple server'
+exports.desc = 'simple server tool'
 
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
