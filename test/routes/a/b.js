@@ -5,7 +5,7 @@ exports.validate = {
 exports.name = 'test'
 // exports.middleware = []
 
-exports.path = ':c'
+// exports.path = ':c'
 // exports.method = 'post'
 exports.handler = async (ctx) => {
   // throw new ctx.Exception(11)

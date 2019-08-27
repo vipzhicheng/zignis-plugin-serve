@@ -7,7 +7,7 @@
  * [*]: simple route, function module as handler
  * [*]: speical route, index
  * [*]: zignis serve -l list all routes
- * []: zignis make route a/b/c/d 'desc'
+ * [*]: zignis make route a/b/c/d 'desc'
  * []: README.md
  * []: Rewrite all not-found requests to `index.html`
  * [*]: http access log
