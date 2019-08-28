@@ -1,8 +1,5 @@
 {
   "commandDir": "src/commands",
   "extendDir": "src/extends",
-  "hookDir": "src/hooks",
-  "publicDir": "test/public",
-  "routeDir": "test/routes",
-  "initApp": "test/init.js"
+  "hookDir": "src/hooks"
 }

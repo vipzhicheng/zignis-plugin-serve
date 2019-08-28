@@ -1,5 +1,6 @@
 /**
  * TODO:
+ * [*]: support spa mode and 404 mode
  * [*]: return format, base on Zhike api style, with errors by middleware ***
  * [*]: support pure response, ctx.json = false
  * [*]: restructure middlewares
@@ -31,8 +32,8 @@ const Koa = require('koa')
 const app = new Koa()
 
 const errorMiddleware = require('../middlewares/error')
-const spaFallbackMiddleware = require('../middlewares/spa_fallback')
-const routeMiddleware = require('../middlewares/route')
+const staticMiddleware = require('../middlewares/static')
+const routerMiddleware = require('../middlewares/router')
 
 const logger = require('koa-logger')
 const cors = require('kcors')
@@ -44,14 +45,19 @@ exports.desc = 'simple server tool'
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
   yargs.option('list', { describe: 'list routes', alias: 'l' })
-  yargs.option('init-koa', { default: false, describe: 'initial koa application' })
+  yargs.option('init-koa', { default: false, describe: 'initial koa application', alias: 'i' })
   yargs.option('api-prefix', { default: '/api', describe: 'prefix all routes'})
   yargs.option('spa', { describe: 'fallback to index.html' })
-  yargs.option('disable-internal-middleware-custom-error-handler', { describe: 'disable internal middleware custom error handler'})
+  yargs.option('routeDir', { describe: 'routes location' })
+  yargs.option('publicDir', { describe: 'static files location' })
+  yargs.option('file-index', { default: 'index.html', describe: 'index file name' })
+  yargs.option('file-404', { default: '404.html', describe: 'index file name' })
+  yargs.option('disable-internal-middleware-custom-error', { describe: 'disable internal middleware custom error'})
+  yargs.option('disable-internal-middleware-custom-static', { describe: 'disable internal middleware custom static'})
+  yargs.option('disable-internal-middleware-custom-router', { describe: 'disable internal middleware custom router'})
   yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
   yargs.option('disable-internal-middleware-koa-bodyparser', { describe: 'disable internal middleware koa-bodyparser'})
   yargs.option('disable-internal-middleware-koa-kcors', { describe: 'disable internal middleware kcors'})
-  yargs.option('disable-internal-middleware-koa-router', { describe: 'disable internal middleware koa-router'})
 }
 
 exports.handler = async function (argv) {
@@ -59,7 +65,7 @@ exports.handler = async function (argv) {
   const appConfig = Utils.getApplicationConfig()
 
   // 错误处理
-  argv.disableInternalMiddlewareCustomErrorHandler || app.use(errorMiddleware)
+  argv.disableInternalMiddlewareCustomError || app.use(errorMiddleware)
   
   // 允许应用插入一些中间件
   if (argv.initApp && fs.existsSync(path.resolve(appConfig.applicationDir, argv.initApp))) {
@@ -70,16 +76,24 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
 
-  if (!argv.disableInternalMiddlewareKoaStatic) {
+  if (!argv.disableInternalMiddlewareCustomStatic) {
     argv.publicDir = argv.publicDir || '.'
     if (!fs.existsSync(path.resolve(argv.publicDir))) {
       Utils.error('Invalid public dir.')
     }
 
-    app.use(spaFallbackMiddleware(argv))
+    if (argv.fileIndex && !fs.existsSync(path.resolve(argv.publicDir, argv.fileIndex))) {
+      Utils.error('Invalid file index')
+    }
+
+    if (argv.file404 && !fs.existsSync(path.resolve(argv.publicDir, argv.file404))) {
+      Utils.error('Invalid file 404')
+    }
+
+    app.use(staticMiddleware(argv))
   }
 
-  argv.disableInternalMiddlewareKoaRouter || app.use(routeMiddleware(argv)) // 路由资源
+  argv.disableInternalMiddlewareCustomRouter || app.use(routerMiddleware(argv)) // 路由资源
 
   const _port = await detect(port)
 

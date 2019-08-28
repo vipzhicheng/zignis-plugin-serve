@@ -8,20 +8,31 @@ module.exports = argv => {
 
     let opts = {
       root: path.resolve(argv.publicDir),
-      index: 'index.html'
+      index: argv.fileIndex
     }
     if (ctx.method === 'HEAD' || ctx.method === 'GET') {
+      if (ctx.body != null || ctx.status !== 404) return
+
       try {
-        done = await send(ctx, ctx.path, opts)
+        await send(ctx, ctx.path, opts)
       } catch (err) {
         if (err.status !== 404) {
           throw err
-        } else if (argv.spa) {
-          try {
-            await send(ctx, '/', opts)
-          } catch (noIndex) {
-            throw noIndex
+        } else {
+          if (!argv.spa) {
+            opts.index = argv.file404
           }
+
+          if (!argv.file404 && !argv.spa) {
+            ctx.body = 'Not found'
+          } else {
+            try {
+              await send(ctx, '/', opts)
+            } catch (err404) {
+              throw err404
+            }
+          }
+
         }
       }
     }
