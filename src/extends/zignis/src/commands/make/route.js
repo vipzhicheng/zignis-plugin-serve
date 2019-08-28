@@ -28,6 +28,7 @@ exports.handler = function(argv) {
 // exports.path = '' // 追加额外的路由，非必填
 // exports.method = 'get' // 路由方法，默认 get，非必填
 // // https://indicative.adonisjs.com/validations/master/min
+// exports.middleware = [] // 为单个路由指定前置中间件
 // exports.validate = {
 //   username: 'min:6' 
 // }

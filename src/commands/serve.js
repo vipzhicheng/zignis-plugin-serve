@@ -8,7 +8,7 @@
  * [*]: speical route, index
  * [*]: zignis serve -l list all routes
  * [*]: zignis make route a/b/c/d 'desc'
- * []: README.md
+ * [*]: README.md
  * []: Rewrite all not-found requests to `index.html`
  * [*]: http access log
  * [*]: support init script
@@ -46,10 +46,12 @@ exports.builder = function (yargs) {
   yargs.option('list', { describe: 'list routes', alias: 'l' })
   yargs.option('preprocess-koa', { default: false, describe: 'preprocess koa by application' })
   yargs.option('router-api-prefix', { default: '/api', describe: 'prefix all routes'})
+  yargs.option('disable-internal-middleware-custom-error-handler', { describe: 'disable internal middleware custom error handler'})
   yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
   yargs.option('disable-internal-middleware-koa-bodyparser', { describe: 'disable internal middleware koa-bodyparser'})
   yargs.option('disable-internal-middleware-koa-kcors', { describe: 'disable internal middleware kcors'})
   yargs.option('disable-internal-middleware-koa-static', { describe: 'disable internal middleware koa-static'})
+  yargs.option('disable-internal-middleware-koa-router', { describe: 'disable internal middleware koa-router'})
 }
 
 exports.handler = async function (argv) {
@@ -57,7 +59,7 @@ exports.handler = async function (argv) {
   const appConfig = Utils.getApplicationConfig()
 
   // 错误处理
-  app.use(errorMiddleware)
+  argv.disableInternalMiddlewareCustomErrorHandler || app.use(errorMiddleware)
   
   // 允许应用插入一些中间件
   if (argv.initApp && fs.existsSync(path.resolve(appConfig.applicationDir, argv.initApp))) {
@@ -68,8 +70,7 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
   argv.disableInternalMiddlewareKoaStatic || app.use(staticMiddleware(argv)) // 静态资源
-
-  app.use(routeMiddleware(argv)) // 路由资源
+  argv.disableInternalMiddlewareKoaRouter || app.use(routeMiddleware(argv)) // 路由资源
 
   const _port = await detect(port)
 
