@@ -37,15 +37,16 @@ zignis serve [publicDir]
 simple server tool
 
 选项：
-  --port, -p                                    server port                                              [默认值: false]
-  --list, -l                                    list routes
-  --preprocess-koa                              preprocess koa by application                            [默认值: false]
-  --router-api-prefix                           prefix all routes                                       [默认值: "/api"]
-  --disable-internal-middleware-koa-logger      disable internal middleware koa-logger
-  --disable-internal-middleware-koa-bodyparser  disable internal middleware koa-bodyparser
-  --disable-internal-middleware-koa-kcors       disable internal middleware kcors
-  --disable-internal-middleware-koa-static      disable internal middleware koa-static
-  --disable-internal-middleware-koa-router      disable internal middleware koa-router
+  --port, -p                                          server port                                        [默认值: false]
+  --list, -l                                          list routes
+  --init-koa                                          initial koa application                            [默认值: false]
+  --api-prefix                                        prefix all routes                                 [默认值: "/api"]
+  --spa                                               fallback to index.html
+  --disable-internal-middleware-custom-error-handler  disable internal middleware custom error handler
+  --disable-internal-middleware-koa-logger            disable internal middleware koa-logger
+  --disable-internal-middleware-koa-bodyparser        disable internal middleware koa-bodyparser
+  --disable-internal-middleware-koa-kcors             disable internal middleware kcors
+  --disable-internal-middleware-koa-router            disable internal middleware koa-router
 ```
 
 ##
@@ -115,10 +116,14 @@ ctx.json = false
 
 #### 自定义错误码
 
+这里要注意的是抛出的错误码必须经过定义
+
 ```js
 ctx.errors[10001] = '自定义错误消息'
+// 或
+ctx.error(10001, '自定义错误消息', 405)
 
-throw new ctx.Exception(10001)
+throw new ctx.Exception(10001, '重写错误消息)
 ```
 
 ### 路由前缀
@@ -128,6 +133,10 @@ throw new ctx.Exception(10001)
 ### 特殊的路由
 
 index 文件名的路由在我们对路由的理解里有特殊含义，因为我们一般不需要一个路由这样访问：`/api/a/b/index`，而只需要是 `/api/a/b`，所以如果我们不是将路由实现在 `b.js`里，而是`b/index.js`，效果是一样的。
+
+### 对单页面应用（SPA）的支持
+
+只要在启动时加上 `--spa` 选项，不存在的路径就会指向默认的 `index.html`，需要注意的是 `--api-prefix` 选项指定的 API前缀下的路由即使找不到也只是会抛出路由不存在的异常响应，而不会指向 `index.html`，这么做的目的是为了同时支持前后端的使用场景。
 
 ### 启用
 

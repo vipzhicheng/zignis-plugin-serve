@@ -9,7 +9,7 @@
  * [*]: zignis serve -l list all routes
  * [*]: zignis make route a/b/c/d 'desc'
  * [*]: README.md
- * []: Rewrite all not-found requests to `index.html`
+ * [*]: Rewrite all not-found requests to `index.html`
  * [*]: http access log
  * [*]: support init script
  * [*]: support router middleware
@@ -31,7 +31,7 @@ const Koa = require('koa')
 const app = new Koa()
 
 const errorMiddleware = require('../middlewares/error')
-const staticMiddleware = require('../middlewares/static')
+const spaFallbackMiddleware = require('../middlewares/spa_fallback')
 const routeMiddleware = require('../middlewares/route')
 
 const logger = require('koa-logger')
@@ -44,13 +44,13 @@ exports.desc = 'simple server tool'
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
   yargs.option('list', { describe: 'list routes', alias: 'l' })
-  yargs.option('preprocess-koa', { default: false, describe: 'preprocess koa by application' })
-  yargs.option('router-api-prefix', { default: '/api', describe: 'prefix all routes'})
+  yargs.option('init-koa', { default: false, describe: 'initial koa application' })
+  yargs.option('api-prefix', { default: '/api', describe: 'prefix all routes'})
+  yargs.option('spa', { describe: 'fallback to index.html' })
   yargs.option('disable-internal-middleware-custom-error-handler', { describe: 'disable internal middleware custom error handler'})
   yargs.option('disable-internal-middleware-koa-logger', { describe: 'disable internal middleware koa-logger'})
   yargs.option('disable-internal-middleware-koa-bodyparser', { describe: 'disable internal middleware koa-bodyparser'})
   yargs.option('disable-internal-middleware-koa-kcors', { describe: 'disable internal middleware kcors'})
-  yargs.option('disable-internal-middleware-koa-static', { describe: 'disable internal middleware koa-static'})
   yargs.option('disable-internal-middleware-koa-router', { describe: 'disable internal middleware koa-router'})
 }
 
@@ -69,7 +69,16 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKoaLogger || app.use(logger())
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
-  argv.disableInternalMiddlewareKoaStatic || app.use(staticMiddleware(argv)) // 静态资源
+
+  if (!argv.disableInternalMiddlewareKoaStatic) {
+    argv.publicDir = argv.publicDir || '.'
+    if (!fs.existsSync(path.resolve(argv.publicDir))) {
+      Utils.error('Invalid public dir.')
+    }
+
+    app.use(spaFallbackMiddleware(argv))
+  }
+
   argv.disableInternalMiddlewareKoaRouter || app.use(routeMiddleware(argv)) // 路由资源
 
   const _port = await detect(port)

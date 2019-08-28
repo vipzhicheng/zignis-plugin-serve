@@ -34,7 +34,7 @@ const travelRouter = (argv, router, routes, prefixPath = '') => {
                 cacheKey: ctx.url
               })
             } catch (e) {
-              throw new ctx.Exception(2, '', e)
+              throw new ctx.Exception(3, '', e)
             }
           }
           ctx.body = {
@@ -69,8 +69,8 @@ const travelRouter = (argv, router, routes, prefixPath = '') => {
 module.exports = (argv) => {
   const appConfig = Utils.getApplicationConfig()
 
-  if (argv.routerApiPrefix) {
-    router.prefix(argv.routerApiPrefix)
+  if (argv.apiPrefix) {
+    router.prefix(argv.apiPrefix)
   }
 
   const routes = argv.routeDir ? requireDirectory(module, path.resolve(appConfig.applicationDir, argv.routeDir)) : null

@@ -4,8 +4,9 @@ module.exports = async (ctx, next) => {
   ctx.json = true
   ctx.errors = {
     1: { msg: '未知错误', status: 500 },
-    2: { msg: '参数校验失败'},
-    4: { msg: '页面未找到', status: 400 }
+    2: { msg: '错误码无效', status: 400 },
+    3: { msg: '参数校验失败', status: 200},
+    4: { msg: '路由未定义', status: 400 }
   }
 
   class Exception extends Error {
@@ -36,6 +37,25 @@ module.exports = async (ctx, next) => {
   }
 
   ctx.Exception = Exception
+
+  ctx.error = (code, msg, status = 200) => {
+    if (!code || !Utils._.isInteger(code) || !Utils._.isInteger(status)) {
+      throw new ctx.Exception(2)
+    }
+
+    if (!msg) {
+      if (ctx.errors[code]) {
+        return ctx.errors[code]
+      } else {
+        throw new ctx.Exception(1)
+      }
+    } else {
+      if (!Utils._.isString(msg)) {
+        throw new ctx.Exception(2)
+      }
+      ctx.errors[code] = { msg, status }
+    }
+  }
 
   try {
     let startTime = new Date()
