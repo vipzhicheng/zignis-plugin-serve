@@ -1,5 +1,6 @@
 /**
  * TODO:
+ * []: mock inside
  * [*]: support spa mode and 404 mode
  * [*]: return format, base on Zhike api style, with errors by middleware ***
  * [*]: support pure response, ctx.json = false
@@ -51,7 +52,7 @@ exports.builder = function (yargs) {
   yargs.option('routeDir', { describe: 'routes location' })
   yargs.option('publicDir', { describe: 'static files location' })
   yargs.option('file-index', { default: 'index.html', describe: 'index file name' })
-  yargs.option('file-404', { default: '404.html', describe: 'index file name' })
+  yargs.option('file-404', { default: false, describe: 'index file name' })
   yargs.option('disable-internal-middleware-custom-error', { describe: 'disable internal middleware custom error'})
   yargs.option('disable-internal-middleware-custom-static', { describe: 'disable internal middleware custom static'})
   yargs.option('disable-internal-middleware-custom-router', { describe: 'disable internal middleware custom router'})
