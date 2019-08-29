@@ -6,6 +6,8 @@ const { validate } = require('indicative/validator')
 const Router = require('koa-router')
 const router = new Router()
 
+const mock = require('mockjs')
+
 const travelRouter = (argv, router, routes, prefixPath = '') => {
   Object.keys(routes).forEach(name => {
     let route = routes[name]
@@ -25,6 +27,8 @@ const travelRouter = (argv, router, routes, prefixPath = '') => {
       if (route.handler) {
         middlewares.push(async (ctx) => {
           ctx.router = router
+          ctx.Mock = Mock
+          ctx.mock = Mock.mock
           const input = method === 'get' ? Object.assign({}, ctx.params, ctx.query) : Object.assign({}, ctx.params, ctx.query, ctx.body)
   
           if (route.validate) {

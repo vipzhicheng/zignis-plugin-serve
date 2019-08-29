@@ -1,6 +1,6 @@
 /**
  * TODO:
- * []: mock inside
+ * [*]: mock inside
  * [*]: support spa mode and 404 mode
  * [*]: return format, base on Zhike api style, with errors by middleware ***
  * [*]: support pure response, ctx.json = false
