@@ -1,5 +1,6 @@
 /**
  * TODO:
+ * []: enable gzip for static
  * [*]: mock inside
  * [*]: support spa mode and 404 mode
  * [*]: return format, base on Zhike api style, with errors by middleware ***

@@ -38,16 +38,21 @@ zignis serve [publicDir]
 simple server tool
 
 选项：
-  --port, -p                                          server port                                        [默认值: false]
-  --list, -l                                          list routes
-  --init-koa                                          initial koa application                            [默认值: false]
-  --api-prefix                                        prefix all routes                                 [默认值: "/api"]
-  --spa                                               fallback to index.html
-  --disable-internal-middleware-custom-error-handler  disable internal middleware custom error handler
-  --disable-internal-middleware-koa-logger            disable internal middleware koa-logger
-  --disable-internal-middleware-koa-bodyparser        disable internal middleware koa-bodyparser
-  --disable-internal-middleware-koa-kcors             disable internal middleware kcors
-  --disable-internal-middleware-koa-router            disable internal middleware koa-router
+  --port, -p                                    server port                                              [默认值: false]
+  --list, -l                                    list routes
+  --init-koa, -i                                initial koa application                                  [默认值: false]
+  --api-prefix                                  prefix all routes                                       [默认值: "/api"]
+  --spa                                         fallback to index.html
+  --routeDir                                    routes location
+  --publicDir                                   static files location
+  --file-index                                  index file name                                   [默认值: "index.html"]
+  --file-404                                    index file name                                          [默认值: false]
+  --disable-internal-middleware-custom-error    disable internal middleware custom error
+  --disable-internal-middleware-custom-static   disable internal middleware custom static
+  --disable-internal-middleware-custom-router   disable internal middleware custom router
+  --disable-internal-middleware-koa-logger      disable internal middleware koa-logger
+  --disable-internal-middleware-koa-bodyparser  disable internal middleware koa-bodyparser
+  --disable-internal-middleware-koa-kcors       disable internal middleware kcors
 ```
 
 ##
@@ -126,6 +131,10 @@ ctx.error(10001, '自定义错误消息', 405)
 
 throw new ctx.Exception(10001, '重写错误消息)
 ```
+
+#### Mock 数据
+
+命令内置了 `mockjs` 库，只需要通过 `ctx.Mock` 和 `ctx.mock` 就能访问，`ctx.mock === ctx.Mock.mock`。
 
 ### 路由前缀
 
