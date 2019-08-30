@@ -1,7 +1,5 @@
 {
   "commandDir": "src/commands",
   "extendDir": "src/extends",
-  "hookDir": "src/hooks",
-  "routeDir": "test",
-  "disableInternalMiddlewareCustomStatic": true
+  "hookDir": "src/hooks"
 }

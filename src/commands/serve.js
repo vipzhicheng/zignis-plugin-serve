@@ -1,7 +1,7 @@
 /**
  * TODO:
  * []: write more comments
- * []: send 404 header when 404
+ * [*]: send 404 header when 404
  * [*]: enable gzip for text content type
  * [*]: mock inside
  * [*]: support spa mode and 404 mode

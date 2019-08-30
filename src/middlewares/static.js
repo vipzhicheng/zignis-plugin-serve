@@ -23,11 +23,11 @@ module.exports = argv => {
             opts.index = argv.file404
           }
 
+          ctx.status = 404
           if (!argv.file404 && !argv.spa) {
             ctx.body = 'Not found'
           } else {
             try {
-              // TODO: send 404 header
               await send(ctx, '/', opts)
             } catch (err404) {
               throw err404
