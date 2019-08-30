@@ -1,5 +1,6 @@
 /**
  * TODO:
+ * []: write more comments
  * [*]: enable gzip for text content type
  * [*]: mock inside
  * [*]: support spa mode and 404 mode
