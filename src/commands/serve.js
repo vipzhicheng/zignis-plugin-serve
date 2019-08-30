@@ -1,6 +1,6 @@
 /**
  * TODO:
- * []: enable gzip for static
+ * [*]: enable gzip for text content type
  * [*]: mock inside
  * [*]: support spa mode and 404 mode
  * [*]: return format, base on Zhike api style, with errors by middleware ***
@@ -40,6 +40,7 @@ const routerMiddleware = require('../middlewares/router')
 const logger = require('koa-logger')
 const cors = require('kcors')
 const bodyParser = require('koa-bodyparser')
+const compress = require('koa-compress')
 
 exports.command = 'serve [publicDir]'
 exports.desc = 'simple server tool'
@@ -50,6 +51,7 @@ exports.builder = function (yargs) {
   yargs.option('init-koa', { default: false, describe: 'initial koa application', alias: 'i' })
   yargs.option('api-prefix', { default: '/api', describe: 'prefix all routes'})
   yargs.option('spa', { describe: 'fallback to index.html' })
+  yargs.option('gzip', { describe: 'enable gzip' })
   yargs.option('routeDir', { describe: 'routes location' })
   yargs.option('publicDir', { describe: 'static files location' })
   yargs.option('file-index', { default: 'index.html', describe: 'index file name' })
@@ -78,13 +80,23 @@ exports.handler = async function (argv) {
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
 
+  if (argv.gzip) {
+    app.use(compress({
+      filter: function (content_type) {
+        return /text/i.test(content_type)
+      },
+      threshold: 2048,
+      flush: require('zlib').Z_SYNC_FLUSH
+    }))
+  }
+
   if (!argv.disableInternalMiddlewareCustomStatic) {
     argv.publicDir = argv.publicDir || '.'
     if (!fs.existsSync(path.resolve(argv.publicDir))) {
       Utils.error('Invalid public dir.')
     }
 
-    if (argv.fileIndex && !fs.existsSync(path.resolve(argv.publicDir, argv.fileIndex))) {
+    if (argv.spa && argv.fileIndex && !fs.existsSync(path.resolve(argv.publicDir, argv.fileIndex))) {
       Utils.error('Invalid file index')
     }
 
@@ -101,10 +113,10 @@ exports.handler = async function (argv) {
 
   if (port == _port) {
     app.listen(port)
-    console.log(`Running on http://127.0.0.1:${port}`);
+    console.log(`Running on http://localhost:${port}`);
   } else {
     app.listen(_port)
     console.log(`Port ${port} was occupied, use ${_port} instead`);
-    console.log(`Running on http://127.0.0.1:${_port}`);
+    console.log(`Running on http://localhost:${_port}`);
   }
 }

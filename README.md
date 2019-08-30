@@ -43,6 +43,7 @@ simple server tool
   --init-koa, -i                                initial koa application                                  [默认值: false]
   --api-prefix                                  prefix all routes                                       [默认值: "/api"]
   --spa                                         fallback to index.html
+  --gzip                                        enable gzip
   --routeDir                                    routes location
   --publicDir                                   static files location
   --file-index                                  index file name                                   [默认值: "index.html"]
