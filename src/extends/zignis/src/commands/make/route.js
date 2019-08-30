@@ -38,8 +38,6 @@ exports.handler = async ctx => {
   return 'hello'
 }
 `
-
-
   if (!fs.existsSync(routeFilePath)) {
     fs.writeFileSync(routeFilePath, code)
     console.log(Utils.chalk.green(`${routeFilePath} created!`))

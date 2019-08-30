@@ -6,31 +6,42 @@ const { validate } = require('indicative/validator')
 const Router = require('koa-router')
 const router = new Router()
 
-const mock = require('mockjs')
+const Mock = require('mockjs')
 
 const travelRouter = (argv, router, routes, prefixPath = '') => {
   Object.keys(routes).forEach(name => {
     let route = routes[name]
+
+    // 支持特殊路由 index
     let routePath = name === 'index' ? `${prefixPath ? prefixPath : '/'}` : `${prefixPath}/${name}`
 
+    // 支持简单路由
     if (Utils._.isFunction(route)) {
       route = { handler: route } // simple route
     }
 
     if (route.handler && Utils._.isFunction(route.handler)) {
+      // 允许路由做额外修饰
       if (route.path) {
         routePath = `${routePath}/${route.path}`
       }
+
+      // 允许路由定义路由方法
       const method = route.method ? Utils._.lowerCase(route.method) : 'get'
 
+      // 路由中间件
       let middlewares = route.middleware ? Utils._.castArray(route.middleware) : []
       if (route.handler) {
         middlewares.push(async (ctx) => {
+          // 内置路由实例
           ctx.router = router
+
+          // 支持数据模拟实例，基于 mockjs
           ctx.Mock = Mock
           ctx.mock = Mock.mock
           const input = method === 'get' ? Object.assign({}, ctx.params, ctx.query) : Object.assign({}, ctx.params, ctx.query, ctx.body)
   
+          // 支持参数校验路由配置
           if (route.validate) {
             try {
               // https://indicative.adonisjs.com/validations/master/min
@@ -46,6 +57,7 @@ const travelRouter = (argv, router, routes, prefixPath = '') => {
             code: 0
           }
 
+          // 支持让路由控制关闭 gzip
           if (argv.gzip) {
             ctx.gzip = true
           }
@@ -82,6 +94,7 @@ const travelRouter = (argv, router, routes, prefixPath = '') => {
 module.exports = (argv) => {
   const appConfig = Utils.getApplicationConfig()
 
+  // 支持路由前缀
   if (argv.apiPrefix) {
     router.prefix(argv.apiPrefix)
   }
@@ -90,10 +103,12 @@ module.exports = (argv) => {
   if (routes) {
     travelRouter(argv, router, routes)
   }
+  // 默认路由
   router['all']('*', async ctx => {
     throw new ctx.Exception(4)
   })
 
+  // 查看注册的所有路由
   if (argv.list) {
     const publicDir = argv.publicDir ? path.resolve(argv.publicDir) : path.resolve('.')
     console.log(`${Utils.chalk.green('Static directory:')}`)

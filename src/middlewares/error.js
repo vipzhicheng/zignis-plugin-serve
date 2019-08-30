@@ -1,7 +1,10 @@
 const { Utils } = require('zignis')
 
 module.exports = async (ctx, next) => {
+  // 默认以 JSON 的方式返回
   ctx.json = true
+
+  // 默认错误码定义
   ctx.errors = {
     1: { msg: '未知错误', status: 500 },
     2: { msg: '错误码无效', status: 400 },
@@ -36,8 +39,10 @@ module.exports = async (ctx, next) => {
     }
   }
 
+  // 默认异常类
   ctx.Exception = Exception
 
+  // 添加自定义错误码
   ctx.error = (code, msg, status = 200) => {
     if (!code || !Utils._.isInteger(code) || !Utils._.isInteger(status)) {
       throw new ctx.Exception(2)
@@ -83,7 +88,7 @@ module.exports = async (ctx, next) => {
       }
     }
     if (process.env.NODE_ENV !== 'production' && e) {
-      ctx.body.stack = e.stack // 调用栈返给前端
+      ctx.body.stack = e.stack // 非线上环境，调用栈返给前端
     }
   }
 }

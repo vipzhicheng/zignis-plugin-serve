@@ -1,6 +1,6 @@
 /**
  * TODO:
- * []: write more comments
+ * [*]: write more comments
  * [*]: send 404 header when 404
  * [*]: enable gzip for text content type
  * [*]: mock inside
@@ -78,10 +78,12 @@ exports.handler = async function (argv) {
     require(path.resolve(appConfig.applicationDir, argv.initApp))(app)
   }
 
+  // 加载常用中间件
   argv.disableInternalMiddlewareKoaLogger || app.use(logger())
   argv.disableInternalMiddlewareKcors || app.use(cors({ credentials: true }))
   argv.disableInternalMiddlewareKoaBodyparser || app.use(bodyParser())
 
+  // 支持 Gzip
   if (argv.gzip) {
     app.use(compress({
       filter: function (content_type) {
@@ -106,11 +108,14 @@ exports.handler = async function (argv) {
       Utils.error('Invalid file 404')
     }
 
+    // 加载静态资源
     app.use(staticMiddleware(argv))
   }
 
+  // 加载路由
   argv.disableInternalMiddlewareCustomRouter || app.use(routerMiddleware(argv)) // 路由资源
 
+  // 端口检测
   const _port = await detect(port)
 
   if (port == _port) {
