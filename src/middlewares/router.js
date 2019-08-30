@@ -46,7 +46,16 @@ const travelRouter = (argv, router, routes, prefixPath = '') => {
             code: 0
           }
 
+          if (argv.gzip) {
+            ctx.gzip = true
+          }
+
           const handled = await route.handler(ctx)
+
+          if (argv.gzip) {
+            ctx.compress = ctx.gzip
+          }
+
           if (ctx.json) {
             ctx.body.data = handled
           } else {

@@ -27,6 +27,7 @@ module.exports = argv => {
             ctx.body = 'Not found'
           } else {
             try {
+              // TODO: send 404 header
               await send(ctx, '/', opts)
             } catch (err404) {
               throw err404

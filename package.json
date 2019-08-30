@@ -8,7 +8,7 @@
     "watch": "nodemon --exec 'npm run serve --spa'"
   },
   "peerDependencies": {
-    "zignis": "^1.6.38"
+    "zignis": "^1.6.39"
   },
   "devDependencies": {
     "eslint": "^6.2.0",
