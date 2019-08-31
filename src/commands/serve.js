@@ -120,10 +120,12 @@ exports.handler = async function (argv) {
 
   if (port == _port) {
     app.listen(port)
-    console.log(`Running on http://localhost:${port}`);
+    console.log(`Serving on:`, Utils.chalk.green(`http://localhost:${port}`))
   } else {
     app.listen(_port)
     console.log(`Port ${port} was occupied, use ${_port} instead`);
-    console.log(`Running on http://localhost:${_port}`);
+    console.log(`Serving on:`, Utils.chalk.green(`http://localhost:${_port}`))
   }
+  console.log('spa:', argv.spa ? Utils.chalk.green('on'): Utils.chalk.red('off'))
+  console.log('gzip:', argv.gzip ? Utils.chalk.green('on'): Utils.chalk.red('off'))
 }
