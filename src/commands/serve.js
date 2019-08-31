@@ -29,6 +29,7 @@
 const { Utils } = require('zignis')
 const path = require('path')
 const fs = require('fs')
+const boxen = require('boxen')
 
 const detect = require('detect-port');
 
@@ -115,17 +116,27 @@ exports.handler = async function (argv) {
   // 加载路由
   argv.disableInternalMiddlewareCustomRouter || app.use(routerMiddleware(argv)) // 路由资源
 
+
+  // 给启动信息加个框
+  const box = [Utils.chalk.green('Zignis Serving!'), '']
+
   // 端口检测
   const _port = await detect(port)
 
   if (port == _port) {
     app.listen(port)
-    console.log(`Serving on:`, Utils.chalk.green(`http://localhost:${port}`))
+    box.push(Utils.chalk.bold(`Location: `) + Utils.chalk.green(`http://localhost:${port}`))
   } else {
     app.listen(_port)
-    console.log(`Port ${port} was occupied, use ${_port} instead`);
-    console.log(`Serving on:`, Utils.chalk.green(`http://localhost:${_port}`))
+    box.push(`Port ${port} was occupied, use ${_port} instead`);
+    box.push(Utils.chalk.bold(`Location: `) + Utils.chalk.green(`http://localhost:${_port}`))
   }
-  console.log('spa:', argv.spa ? Utils.chalk.green('on'): Utils.chalk.red('off'))
-  console.log('gzip:', argv.gzip ? Utils.chalk.green('on'): Utils.chalk.red('off'))
+  box.push(Utils.chalk.bold('- spa: ') + (argv.spa ? Utils.chalk.green('on'): Utils.chalk.red('off')))
+  box.push(Utils.chalk.bold('- gzip: ') + (argv.gzip ? Utils.chalk.green('on'): Utils.chalk.red('off')))
+
+  console.log(boxen(box.join('\n'), {
+    margin: 1,
+    padding: 1,
+    borderColor: 'green'
+  }))
 }
