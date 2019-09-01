@@ -1,5 +1,6 @@
 /**
  * TODO:
+ * [*]: beautify launch message
  * [*]: write more comments
  * [*]: send 404 header when 404
  * [*]: enable gzip for text content type
@@ -29,7 +30,9 @@
 const { Utils } = require('zignis')
 const path = require('path')
 const fs = require('fs')
+const os = require('os')
 const boxen = require('boxen')
+const isRoot = require('is-root')
 
 const detect = require('detect-port');
 
@@ -68,7 +71,7 @@ exports.builder = function (yargs) {
 }
 
 exports.handler = async function (argv) {
-  const port = argv.port || 3000
+  let port = argv.port || 3000
   const appConfig = Utils.getApplicationConfig()
 
   // 错误处理
@@ -95,6 +98,7 @@ exports.handler = async function (argv) {
     }))
   }
 
+  // 加载静态资源
   if (!argv.disableInternalMiddlewareCustomStatic) {
     argv.publicDir = argv.publicDir || '.'
     if (!fs.existsSync(path.resolve(argv.publicDir))) {
@@ -109,27 +113,59 @@ exports.handler = async function (argv) {
       Utils.error('Invalid file 404')
     }
 
-    // 加载静态资源
     app.use(staticMiddleware(argv))
   }
 
-  // 加载路由
-  argv.disableInternalMiddlewareCustomRouter || app.use(routerMiddleware(argv)) // 路由资源
+  // 加载动态路由
+  argv.disableInternalMiddlewareCustomRouter || app.use(routerMiddleware(argv))
 
 
   // 给启动信息加个框
   const box = [Utils.chalk.green('Zignis Serving!'), '']
 
   // 端口检测
+  const message =
+    process.platform !== 'win32' && port < 1024 && !isRoot()
+      ? `Admin permissions are required to run a server on a port below 1024.`
+      : `Something is already running on port ${port}.`;
+
+
   const _port = await detect(port)
 
-  if (port == _port) {
-    app.listen(port)
-    box.push(Utils.chalk.bold(`Location: `) + Utils.chalk.green(`http://localhost:${port}`))
-  } else {
-    app.listen(_port)
-    box.push(`Port ${port} was occupied, use ${_port} instead`);
-    box.push(Utils.chalk.bold(`Location: `) + Utils.chalk.green(`http://localhost:${_port}`))
+  if (port !== _port) {
+    const question = {
+      name: 'shouldChangePort',
+      type: 'confirm',
+      message: Utils.chalk.yellow(message + `\n\nWould you like to run on another port instead?`),
+      default: true
+    }
+    const confirm = await Utils.inquirer.prompt(question)
+    if (confirm.shouldChangePort) {
+      port = _port
+    } else {
+      console.log(Utils.chalk.cyan('Aborted!'))
+      process.exit(0)
+    }
+  }
+
+  // HOST地址检测
+  const localhost = 'http://localhost'
+  const interface = Utils._.chain(os.networkInterfaces()).flatMap().find(o => o.family === 'IPv4' && o.internal === false).value()
+  const nethost = interface ? `http://${interface.address}` : null
+
+  app.listen(port)
+
+  // 清除终端，copy from package: react-dev-utils
+  function clearConsole() {
+    process.stdout.write(
+      process.platform === 'win32' ? '\x1B[2J\x1B[0f' : '\x1B[2J\x1B[3J\x1B[H'
+    );
+  }
+  process.stdout.isTTY && clearConsole()
+
+  box.push(Utils.chalk.bold(`Local: `) + Utils.chalk.green(`${localhost}:${_port}`))
+  if (nethost) {
+    box.push(Utils.chalk.bold(`Network: `) + Utils.chalk.green(`${nethost}:${_port}`))
   }
   box.push(Utils.chalk.bold('- spa: ') + (argv.spa ? Utils.chalk.green('on'): Utils.chalk.red('off')))
   box.push(Utils.chalk.bold('- gzip: ') + (argv.gzip ? Utils.chalk.green('on'): Utils.chalk.red('off')))
