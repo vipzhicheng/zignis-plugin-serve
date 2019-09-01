@@ -71,7 +71,7 @@ exports.builder = function (yargs) {
 }
 
 exports.handler = async function (argv) {
-  let port = argv.port || 3000
+  let port = parseInt(argv.port, 10) || 3000
   const appConfig = Utils.getApplicationConfig()
 
   // 错误处理
