@@ -102,22 +102,23 @@ module.exports = (argv) => {
   const routes = argv.routeDir ? requireDirectory(module, path.resolve(appConfig.applicationDir, argv.routeDir)) : null
   if (routes) {
     travelRouter(argv, router, routes)
+
+    // 默认路由，如果没有设置路由目录，则默认路由也没有
+    router['all']('*', async ctx => {
+      throw new ctx.Exception(4)
+    })
   }
-  // 默认路由
-  router['all']('*', async ctx => {
-    throw new ctx.Exception(4)
-  })
 
   // 查看注册的所有路由
   if (argv.list) {
     const publicDir = argv.publicDir ? path.resolve(argv.publicDir) : path.resolve('.')
-    console.log(`${Utils.chalk.green('Static directory:')}`)
+    console.log(`${Utils.chalk.green('Static Directory:')}`)
     console.log(publicDir)
 
     console.log()
     console.log(Utils.chalk.green('Routes:'))
     const headers = [Utils.chalk.cyan.bold('PATH'), Utils.chalk.cyan.bold('NAME'), Utils.chalk.cyan.bold('METHOD')]
-    const rows = [headers]
+    const rows = []
     router.stack.forEach(item => {
       rows.push([
         item.path,
@@ -126,7 +127,7 @@ module.exports = (argv) => {
       ])
     })
 
-    console.log(Utils.table(rows))
+    console.log(rows.length > 0 ? Utils.table([headers].concat(rows)) : Utils.chalk.yellow('No routes exist.'))
     process.exit(0)
   }
 
