@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "serve": "zignis serve",
-    "watch": "nodemon --exec 'npm run serve --spa'"
+    "watch": "nodemon --exec 'npm run serve'",
+    "postversion": "git push && git push --tags"
   },
   "peerDependencies": {
     "zignis": "^1.6.39"
