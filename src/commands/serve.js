@@ -49,6 +49,7 @@ const bodyParser = require('koa-bodyparser')
 const compress = require('koa-compress')
 
 exports.command = 'serve [publicDir]'
+exports.aliases = 's'
 exports.desc = 'simple server tool'
 
 exports.builder = function (yargs) {
