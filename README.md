@@ -1,7 +1,6 @@
-zignis-plugin-serve
-===================
+# zignis-plugin-serve
 
-`zignis-plugin-serve` 是一个简易的 HTTP Server 工具，类似的工具有很多，包括但不限于：
+一个简易的 HTTP Server 工具，类似的工具有很多，包括但不限于：
 
 * [http-server](https://www.npmjs.com/package/http-server)
 * [serve](https://www.npmjs.com/package/serve)
@@ -128,7 +127,7 @@ ctx.errors[10001] = '自定义错误消息'
 // 或
 ctx.error(10001, '自定义错误消息', 405)
 
-throw new ctx.Exception(10001, '重写错误消息)
+throw new ctx.Exception(10001, '重写错误消息')
 ```
 
 #### Mock 数据
