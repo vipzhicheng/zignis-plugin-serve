@@ -9,7 +9,7 @@
     "postversion": "git push && git push --tags"
   },
   "peerDependencies": {
-    "zignis": "^1.6.39"
+    "zignis": "^1.6.44"
   },
   "devDependencies": {
     "eslint": "^6.3.0",

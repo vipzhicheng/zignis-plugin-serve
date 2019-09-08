@@ -50,7 +50,7 @@ const compress = require('koa-compress')
 
 exports.command = 'serve [publicDir]'
 exports.aliases = 's'
-exports.desc = 'simple server tool'
+exports.desc = 'Simple server tool'
 
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
