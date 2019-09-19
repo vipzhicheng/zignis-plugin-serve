@@ -54,6 +54,7 @@ exports.desc = 'Simple server tool'
 
 exports.builder = function (yargs) {
   yargs.option('port', { default: false, describe: 'server port', alias: 'p' })
+  yargs.option('yes', { describe: 'say yes to use new port when default port in use', alias: 'y' })
   yargs.option('list', { describe: 'list routes', alias: 'l' })
   yargs.option('init-koa', { default: false, describe: 'initial koa application', alias: 'i' })
   yargs.option('api-prefix', { default: '/api', describe: 'prefix all routes'})
@@ -134,18 +135,22 @@ exports.handler = async function (argv) {
   const _port = await detect(port)
 
   if (port !== _port) {
-    const question = {
-      name: 'shouldChangePort',
-      type: 'confirm',
-      message: Utils.chalk.yellow(message + `\n\nWould you like to run on another port instead?`),
-      default: true
-    }
-    const confirm = await Utils.inquirer.prompt(question)
-    if (confirm.shouldChangePort) {
+    if (argv.yes) {
       port = _port
     } else {
-      console.log(Utils.chalk.cyan('Aborted!'))
-      process.exit(0)
+      const question = {
+        name: 'shouldChangePort',
+        type: 'confirm',
+        message: Utils.chalk.yellow(message + `\n\nWould you like to run on another port instead?`),
+        default: true
+      }
+      const confirm = await Utils.inquirer.prompt(question)
+      if (confirm.shouldChangePort) {
+        port = _port
+      } else {
+        console.log(Utils.chalk.cyan('Aborted!'))
+        process.exit(0)
+      }
     }
   }
 
